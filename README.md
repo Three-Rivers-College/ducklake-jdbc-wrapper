@@ -1,13 +1,19 @@
 # DuckLake JDBC Wrapper
 
-A thin JDBC driver wrapper for DuckDB that simplifies connection URL assembly and provides custom httpfs extension  initialization logic for DuckLake environments.
+A thin JDBC driver wrapper for DuckDB that simplifies connection URL assembly and provides automated initialization for **BI tools** and **DuckLake environments**.
 
 ## Motivation
-Connecting to DuckLake environments requires specific attachment logic and property handling that the default DuckDB JDBC driver doesn't always provide out-of-the-box. For example with [Entrinsik Informer](https://www.entrinsik.com/platform/informer/) running Windows, the httpfs command does not load, making it unable to connect to a remote or [Frozen Ducklacke](https://ducklake.select/2025/10/24/frozen-ducklake/).
+The standard DuckDB JDBC driver is excellent for general-purpose Java development. However, many BI tools do not support executing initialization scripts (e.g., `INSTALL`/`LOAD httpfs;`) upon connection. Additionally, these tools often allow connection details to be passed via standard JDBC properties rather than being embedded in a potentially sensitive plain-text connection URL.
 
-This wrapper automates the `LOAD` of extensions and simplifies URL assembly, making it "plug-and-play" for tools that expect a standard JDBC connection string.
+This wrapper provides a "plug-and-play" experience for these environments by:
+- **Automating Extension Loading**: Automatically installs and loads the `httpfs` and `ducklake` extensions.
+- **Secure Property Mapping**: Maps standard JDBC connection properties (like `user`, `password`, `host`, etc.) directly into DuckDB `ATTACH` commands, keeping credentials out of the URL.
+- **Simplifying URL Assembly**: Provides a consistent `jdbc:duck-lake:` prefix that translates into the appropriate DuckDB attachment logic.
 
-By keeping the DuckDB driver as an external dependency, users can easily update the underlying DuckDB version without needing to rebuild this wrapper.
+## When to Use This Wrapper
+
+- **Use this if**: You are connecting from a BI tool or platform—such as [Entrinsik Informer](https://www.entrinsik.com/platform/informer/)—that works best with standard JDBC property fields and you want to automate extension loading (`httpfs`, etc.) without manual SQL initialization.
+- **Don't use this if**: You are writing a custom Java application where you can easily call `stmt.execute("INSTALL httpfs; LOAD httpfs;");` after connecting with the standard DuckDB driver.
 
 ## Features
 
@@ -58,11 +64,7 @@ If you don't have Maven, you can build manually using the standard Java tools:
 
 ## Usage
 
-When running your application, include both this wrapper and the DuckDB JDBC driver in your classpath:
-
-```bash
-java -cp "ducklake-jdbc-wrapper.jar:duckdb_jdbc.jar" YourApp
-```
+To use this wrapper, include both the **DuckLake JDBC Wrapper** JAR and the standard **DuckDB JDBC Driver** JAR in your tool or application's classpath.
 
 ### Connection URL Examples
 
