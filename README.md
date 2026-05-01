@@ -21,13 +21,28 @@ This wrapper provides a "plug-and-play" experience for these environments by:
 - **URL Assembly & Secure Property Handling**: Supports `jdbc:duck-lake:` prefix and automatically merges connection properties (like `host`, `port`, `user`, `password`, `dbname`) into the `ATTACH` command. This allows BI tools and applications to pass sensitive credentials securely via standard JDBC properties instead of embedding them in a plain-text connection URL.
 - **Dynamic Dependency**: Designed to work with your existing DuckDB JDBC JAR.
 
-## Prerequisites
+## Usage
+
+To use this wrapper, include both the **DuckLake JDBC Wrapper** JAR and the standard **DuckDB JDBC Driver** JAR in your tool or application's classpath or folder.
+
+[Download the Wrapper JAR](https://github.com/Three-Rivers-College/ducklake-jdbc-wrapper/releases)
+
+**Driver CLass:** `com.ducklake.jdbc.DuckDBWrapperDriver`
+
+### Connection URL Examples
+
+- **In-Memory (Default)**: `jdbc:duck-lake:`
+- **Local File**: `jdbc:duck-lake:local_cache.db`
+- **With Inline Parameters**: `jdbc:duck-lake:postgres?host=lakehouse.example.com&dbname=catalog`
+- **Property-Driven (Secure)**: `jdbc:duck-lake:postgres` (Pass credentials via JDBC BI `Connection Properties`)
+
+## Building
+
+### Prerequisites
 
 - Java 8 or higher
 - Maven 3.6+ (Optional)
 - [DuckDB JDBC Driver JAR](https://duckdb.org/install/?environment=java) (external)
-
-## Building
 
 ### Option 1: Using Maven (Recommended)
 To compile the project and generate the thin JAR file:
@@ -61,17 +76,6 @@ If you don't have Maven, you can build manually using the standard Java tools:
    ```bash
    jar cvf ducklake-jdbc-wrapper.jar -C out .
    ```
-
-## Usage
-
-To use this wrapper, include both the **DuckLake JDBC Wrapper** JAR and the standard **DuckDB JDBC Driver** JAR in your tool or application's classpath.
-
-### Connection URL Examples
-
-- **In-Memory (Default)**: `jdbc:duck-lake:`
-- **Local File**: `jdbc:duck-lake:local_cache.db`
-- **With Inline Parameters**: `jdbc:duck-lake:postgres?host=lakehouse.example.com&dbname=catalog`
-- **Property-Driven (Secure)**: `jdbc:duck-lake:postgres` (Pass credentials via JDBC `Connection Properties`)
 
 ## Testing
 
