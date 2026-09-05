@@ -80,13 +80,15 @@ public class DuckDBWrapperDriver implements Driver {
             return null;
         }
         
-        try (Statement stmt = conn.createStatement()) {
-            loadExtension(stmt, "ducklake");
-            loadExtension(stmt, "httpfs");
-            
+        try {
+            loadExtension(conn, "ducklake");
+            loadExtension(conn, "httpfs");
+
             if (!attachPath.isEmpty()) {
-                stmt.execute("ATTACH '" + attachPath + "' AS mylake;");
-                stmt.execute("USE mylake;");
+                try (Statement stmt = conn.createStatement()) {
+                    stmt.execute("ATTACH '" + attachPath + "' AS mylake;");
+                    stmt.execute("USE mylake;");
+                }
             }
         } catch (SQLException e) {
             String maskedPath = attachPath.replaceAll("password=[^ ]+", "password=********");
@@ -102,12 +104,19 @@ public class DuckDBWrapperDriver implements Driver {
         return conn;
     }
 
-    private void loadExtension(Statement stmt, String name) throws SQLException {
-        try {
+    private void loadExtension(Connection conn, String name) throws SQLException {
+        try (Statement stmt = conn.createStatement()) {
             stmt.execute("LOAD " + name + ";");
+            return;
         } catch (SQLException e) {
-            // If LOAD fails, try INSTALL then LOAD
+            // Extension may not be installed yet.
+        }
+
+        try (Statement stmt = conn.createStatement()) {
             stmt.execute("INSTALL " + name + ";");
+        }
+
+        try (Statement stmt = conn.createStatement()) {
             stmt.execute("LOAD " + name + ";");
         }
     }
